@@ -1,0 +1,59 @@
+{% extends 'posts/base.html' %}
+
+{% block content %}
+    <div class="row mx-md-0 mx-3">
+        <div class="col-md-6 offset-md-3">
+            <h2 class="text-center">Here are the featured blogs</h2>
+            <h5 class="text-center">Find your favorite blogs written by excellent writers here</h5>
+
+    </div>
+    {% for object in object_list %}
+        <div class="row mx-md-0 mx-3">
+            <div class="col-md-6 offset-md-3">
+                <h3 class="fw-bold">{{ object.title }}</h3>
+                {% if object.image %}
+                    <img src="{{ object.image.url }}" class="img-fluid" alt="{{ object.title }}">
+                {% endif %}
+                {% if request.user.username == object.author.username %}
+                    <div class="text-end">
+                        <a href="{% url 'article-delete' object.id %}" class="btn btn-outline-danger">Delete</a>
+                    </div>
+                {% endif %}
+                <div class="mt-3">
+                    <p>{{ object.content | truncatewords_html:50 | safe }}</p>
+                </div>
+                <div>
+                    <a href="{% url 'article-detail' object.id %}">Read More</a>
+                </div>
+                <p class="text-muted">{{ object.date_posted }}</p>
+                <p class="text-muted"> Posted by {{ object.author.username }}</p>
+                {% if object.likes.count == 1 %}
+                    <p class="text-muted">{{ object.likes.count }} person likes this post</p>
+                {% else %}
+                    <p class="text-muted">{{ object.likes.count }} people like this post</p>
+                {% endif %}
+            </div>
+    {% endfor %}
+    </div>
+    <nav>
+        <ul class="pagination  mx-md-0 mx-3">
+            <div class="mx-auto">
+                <span class="step-links">
+                    {% if page_obj.has_previous %}
+                        <a href="?page=1">&laquo; first</a>
+                        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}">next</a>
+                        <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+                    {% endif %}
+
+            </div>
+        </ul>
+    </nav>
+{% endblock %}

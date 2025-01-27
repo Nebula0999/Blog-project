@@ -1,0 +1,13 @@
+{% extends 'posts/base.html' %}
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <h2 class="text-center">You have been Logged Out</h2>
+        <div class="border-top pt-3">
+            <small class="text-muted">
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+            </small>
+        </div>
+    </div>
+</div>
+{% endblock %}
