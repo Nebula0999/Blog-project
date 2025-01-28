@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="light">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{% url 'index' %}">My Blog</a>
+      <a class="navbar-brand" href="{% url 'index' %}">Elite Bloggs</a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -15,11 +15,16 @@
             <a class="nav-link" href="{% url 'blog' %}">Blogs</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">About</a>
+            <a class="nav-link" href="{% url 'about' %}">About</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Contacts</a>
+            <a class="nav-link" href="{% url 'contact' %}">Contacts</a>
           </li>
+          {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link disabled" href="{% url 'create-article' %}">Create Blog</a>
+                    </li>
+          {% endif %}
         </ul>
         <form class="d-flex">
           <ul class="navbar-nav me-auto">

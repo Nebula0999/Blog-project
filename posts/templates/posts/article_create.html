@@ -1,0 +1,13 @@
+<!-- filepath: /c:/Users/Allan N/OneDrive/Desktop/Blog/Blog-project/posts/templates/posts/create_article.html -->
+{% extends "posts/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Create a New Blog Post</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
+</div>
+{% endblock %}

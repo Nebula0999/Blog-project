@@ -1,46 +1,46 @@
+<!-- filepath: /c:/Users/Allan N/OneDrive/Desktop/Blog/Blog-project/posts/templates/posts/article_detail.html -->
 {% extends 'posts/base.html' %}
 {% block content %}
-<div class="row">
+<div class="row mx-md-0 mx3">
     <div class="col-md-6 offset-md-3 text-end">
-        <a class="btn btn-danger" href="{% url 'index' %}">Go Home</a>
+        <a class="btn btn-outline-secondary" href="{% url 'index' %}">Go Home</a>
     </div>
 </div>
 
-<div class="row">
+<div class="row mx-md-0 mx-3">
     <div class="col-md-6 offset-md-3">
-        <h2 class='mx-md-0 mx-3'>{{ article.title }}</h2>
+        <h2>{{ article.title }}</h2>
         {% if article.image %}
-            <img class='mx-md-0 mx-3' src="{{ article.image.url }}" class="img-fluid" alt="{{ article.title }}">
+            <img src="{{ article.image.url }}" class="img-fluid" alt="{{ article.title }}">
         {% endif %}
-        <p class="text-muted mx-md-0 mx-3">{{ article.date_posted }}</p>
-        <div class='mx-md-0 mx-3'>
-            {% if request.user.username == object.author.username %}
-                    <div class="text-end">
-                        <a href="{% url 'article-delete' object.id %}" class="btn btn-outline-danger">Delete</a>
-                    </div>
-                {% endif %}
+        <p class="text-muted">{{ article.date_posted }}</p>
         <p>{{ article.content | safe }}</p>
-        </div>
-            <p class="text-muted mx-md-0 mx-3">Posted by {{ article.author.username }}</p>
-        {% if article.likes.count == 1 %}
-            <p class="text-muted mx-md-0 mx-3">{{ article.likes.count }} person likes this post</p>
-        {% else %}
-            <p class="text-muted mx-md-0 mx-3">{{ article.likes.count }} people like this post</p>
-        {% endif %}
+        <p class="text-muted">Posted by {{ article.author.username }}</p>
         {% if user.is_authenticated %}
             {% if user in article.likes.all %}
-                <a href="{% url 'unlike-article' article.id %}" class="btn btn-secondary mx-md-0 mx-3"><ion-icon name="heart-dislike-outline"></ion-icon>Unlike</a>
+                <a href="{% url 'unlike-article' article.id %}" class="btn btn-secondary">Unlike</a>
             {% else %}
-                <a href="{% url 'like-article' article.id %}" class="btn btn-primary mx-md-0 mx-3"><ion-icon name="heart-dislike-outline"></ion-icon>Like</a>
+                <a href="{% url 'like-article' article.id %}" class="btn btn-primary">Like</a>
             {% endif %}
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Comment</button>
+            </form>
         {% else %}
-            <a href="{% url 'login' %}" class="btn btn-primary mx-md-0 mx-3" disabled>Login to like this post</a>
+            <p>You must be <a href="{% url 'login' %}">logged in</a> to comment.</p>
         {% endif %}
-        <form method="POST">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary mx-md-0 mx-3">Comment</button>
-        </form>
+        <hr>
+        <h3>Comments</h3>
+        {% for comment in comments %}
+            <div class="comment">
+                <p><strong>{{ comment.user.username }}</strong> said:</p>
+                <p>{{ comment.content }}</p>
+                <p class="text-muted">{{ comment.date_posted }}</p>
+            </div>
+        {% empty %}
+            <p>No comments yet.</p>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

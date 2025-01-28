@@ -3,7 +3,11 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import ListView, DetailView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from posts.models import Article
+from posts.forms import ArticleForm, CommentForm
+from posts.models import Article, Comment
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from tinymce.models import HTMLField
 
 
 
@@ -30,20 +34,25 @@ class Contact(View):
     def get(self, request):
         return render(request, 'posts/contacts.html')
     
-class ArticleDetail(DetailView): 
-    model = Article
+class ArticleDetailView(View):
     def get(self, request, pk):
-        article = Article.objects.get(pk=pk)
-        return render(request, 'posts/article_detail.html', {'article': article})
-    
-    def get_context_data(self, **kwargs):
-        context =  super(ArticleDetail, self).get_context_data(**kwargs)
-        context['liked_by_user'] = False
-        article = Article.objects.get(pk=self.kwargs['pk'])
-        if article.likes.filter(pk=self.request.user.id).exists():
-            context['liked_by_user'] = True
-        return context
+        article = get_object_or_404(Article, pk=pk)
+        form = CommentForm()
+        comments = Comment.objects.filter(article=article)
+        return render(request, 'posts/article_detail.html', {'article': article, 'form': form, 'comments': comments})
 
+    @method_decorator(login_required)
+    def post(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.article = article
+            comment.user = request.user
+            comment.save()
+            return redirect('article-detail', pk=pk)
+        comments = Comment.objects.filter(article=article)
+        return render(request, 'posts/article_detail.html', {'article': article, 'form': form, 'comments': comments})
     
     
 class LikeArticle(View):
@@ -63,6 +72,25 @@ class UnlikeArticle(View):
             article.likes.remove(request.user.id)
         return redirect('article-detail', pk=pk)
     
+@method_decorator(login_required, name='dispatch')
+class ArticleUpdateView(View):
+    def get(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+        if article.author != request.user:
+            return redirect('index')
+        form = ArticleForm(instance=article)
+        return render(request, 'posts/article_update.html', {'form': form, 'article': article})
+
+    def post(self, request, pk):
+        article = get_object_or_404(Article, pk=pk)
+        if article.author != request.user:
+            return redirect('index')
+        form = ArticleForm(request.POST, request.FILES, instance=article)
+        if form.is_valid():
+            form.save()
+            return redirect('article-detail', pk=article.pk)
+        return render(request, 'posts/article_update.html', {'form': form, 'article': article})
+    
 class ArticleDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Article
     success_url = reverse_lazy('index')
@@ -80,4 +108,20 @@ class ArticleDelete(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         article = self.get_object()
         return self.request.user.id == article.author.id
- 
+    
+@login_required
+def create_article(request):
+    if request.method == 'POST':
+        form = ArticleForm(request.POST, request.FILES)
+        if form.is_valid():
+            article = form.save(commit=False)
+            article.author = request.user
+            article.save()
+            return redirect('index')
+    else:
+        form = ArticleForm()
+    return render(request, 'posts/article_create.html', {'form': form})
+    
+
+    
+    
