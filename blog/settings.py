@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-ln&trla@wb2#7x+2-l2krp(95iztihq_mxn4cu9b47dqn9rmhq
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['Cloudtr.pythonanywhere.com']
+ALLOWED_HOSTS = ['https://blog-project-nfsd9w.fly.dev/']
 
 
 # Application definition
